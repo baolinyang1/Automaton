@@ -1,0 +1,46 @@
+from FAdo.fa import *
+from FAdo.conversions import *
+from FAdo.reex import *
+import time
+from tabulate import tabulate
+
+def main():
+    myRegExpString = input("Enter regular expression: ")
+    myRegExp = str2regexp(myRegExpString)
+    myWords = input("Enter a list of words separated by spaces: ")
+    myWordList = myWords.split(" ")
+    
+    # convert regular expression to epsilon-NFA and measure time
+    startToNFA = time.time()
+    myNFA = myRegExp.nfaThompson()
+    endToNFA = time.time()
+    elapsedToNFA = endToNFA - startToNFA
+    print("Time to convert to epsilon NFA: " + str(elapsedToNFA) + " and has " +
+          str(len(myNFA.States)) + " states.")
+    
+    # convert regular expression to DFA and measure time
+    startToDFA = time.time()
+    myDFA = myNFA.toDFA()
+    endToDFA = time.time()
+    elapsedToDFA = endToDFA - startToDFA
+    print("Time to convert to DFA: " + str(elapsedToDFA) + " and has " +
+          str(len(myDFA.States)) + " states.")
+    
+    table = [['accepted by NFA', 'time with NFA', 'accepted by DFA', 'time with DFA']]
+    for i in range(len(myWordList)):  # for each word in list
+        startTimeWordNFA = time.time()
+        testNFA = myNFA.evalWordP(myWordList[i])  # test if word is in NFA and measure time
+        endTimeWordNFA = time.time()
+        elapsedNFA = endTimeWordNFA - startTimeWordNFA
+        
+        startTimeWordDFA = time.time()
+        testDFA = myDFA.evalWordP(myWordList[i])  # test if word is in DFA and measure time
+        endTimeWordDFA = time.time()
+        elapsedDFA = endTimeWordDFA - startTimeWordDFA
+        
+        table.append([testNFA, elapsedNFA, testDFA, elapsedDFA])
+    
+    print(tabulate(table, headers='firstrow', tablefmt='fancy_grid'))
+
+if __name__ == '__main__':
+    main()
