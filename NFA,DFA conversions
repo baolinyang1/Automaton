@@ -4,7 +4,6 @@ from FAdo.reex import *
 import time
 from tabulate import tabulate
 
-
 def main():
     myRegExpString = input("Enter regular expression: ")
     myRegExp = str2regexp(myRegExpString)
