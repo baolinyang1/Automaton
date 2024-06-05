@@ -1,0 +1,40 @@
+class ASTNode:
+    def __init__(self, type, value=None):
+        self.type = type
+        self.value = value
+        self.children = []
+
+def parse(tokens):
+    def parse_expression(index):
+        if tokens[index][0] == 'ID' and tokens[index+1][0] == 'ASSIGN':
+            node = ASTNode('assign')
+            node.children.append(ASTNode('var', tokens[index][1]))
+            expr, next_index = parse_expression(index+2)
+            node.children.append(expr)
+            return node, next_index
+        elif tokens[index][0] == 'ID':
+            return ASTNode('var', tokens[index][1]), index + 1
+        elif tokens[index][0] == 'NUMBER':
+            return ASTNode('num', tokens[index][1]), index + 1
+        elif tokens[index][0] == 'LPAREN':
+            expr, next_index = parse_expression(index+1)
+            assert tokens[next_index][0] == 'RPAREN'
+            return expr, next_index + 1
+        else:
+            left, index = parse_expression(index)
+            while index < len(tokens) and tokens[index][0] == 'OP':
+                node = ASTNode('op', tokens[index][1])
+                right, index = parse_expression(index + 1)
+                node.children.append(left)
+                node.children.append(right)
+                left = node
+            return left, index
+
+    index = 0
+    root = ASTNode('program')
+    while index < len(tokens):
+        stmt, index = parse_expression(index)
+        assert tokens[index][0] == 'SEMI'
+        root.children.append(stmt)
+        index += 1
+    return root
