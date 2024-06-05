@@ -1,0 +1,15 @@
+def generate_code(node):
+    if node.type == 'program':
+        return '\n'.join(generate_code(child) for child in node.children)
+    elif node.type == 'assign':
+        var_name = node.children[0].value
+        expr_code = generate_code(node.children[1])
+        return f'{expr_code}\nSTORE {var_name}'
+    elif node.type == 'var':
+        return f'LOAD {node.value}'
+    elif node.type == 'num':
+        return f'LOAD {node.value}'
+    elif node.type == 'op':
+        left_code = generate_code(node.children[0])
+        right_code = generate_code(node.children[1])
+        return f'{left_code}\n{right_code}\n{node.value}'
